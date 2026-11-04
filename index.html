@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Link Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .link-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .link-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .link-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .link-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .link-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .location-icon { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+        .whatsapp-icon { background: linear-gradient(135deg, #25d366, #128c7e); }
+        .phone-icon { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .time-icon { background: linear-gradient(135deg, #f39c12, #e67e22); }
+        .website-icon { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+        .email-icon { background: linear-gradient(135deg, #4285f4, #34a853); }
+
+        .link-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            margin: 0;
+        }
+
+        .link-description {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .hours-schedule {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .hours-schedule .day {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .hours-schedule .day:last-child {
+            margin-bottom: 0;
+        }
+
+        .day-name {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .copy-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
+        .copy-btn.copied {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            font-weight: 600;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .developer-signature {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            animation: glow 2s ease-in-out infinite alternate;
+            backdrop-filter: blur(10px);
+        }
+
+        .developer-signature:hover {
+            transform: scale(1.1) rotate(2deg);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.5);
+            animation: rainbow 1s linear infinite;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            }
+            to {
+                box-shadow: 0 8px 35px rgba(102, 126, 234, 0.6), 0 0 20px rgba(118, 75, 162, 0.4);
+            }
+        }
+
+        @keyframes rainbow {
+            0% { background: linear-gradient(135deg, #667eea, #764ba2); }
+            20% { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+            40% { background: linear-gradient(135deg, #25d366, #128c7e); }
+            60% { background: linear-gradient(135deg, #f39c12, #e67e22); }
+            80% { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+            100% { background: linear-gradient(135deg, #667eea, #764ba2); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1.1) translateY(0); }
+            50% { transform: scale(1.2) translateY(-5px); }
+        }
+
+        .developer-signature.clicked {
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .links-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .link-card {
+                padding: 20px;
+            }
+
+            .developer-signature {
+                bottom: 15px;
+                right: 15px;
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 Benhamou Link Manager</h1>
+            <p>Click any button to instantly copy the information to your clipboard</p>
+        </div>
+
+        <div class="links-grid" id="linksGrid">
+            <!-- Business Hours -->
+            <div class="link-card">
+                <div class="link-header">
+                    <div class="link-icon time-icon">⏰</div>
+                    <h3 class="link-title">Horaires</h3>
+                </div>
+                <div class="hours-schedule">
+                    <div class="day">
+                        <span class="day-name">Lundi-Vendredi</span>
+                    </div>
+                    <div class="day">
+                        <span>09:00 - 13:30</span>
+                    </div>
+                    <div class="day">
+                        <span>15:00 - 19:30</span>
+                    </div>
+                    <br>
+                    <div class="day">
+                        <span class="day-name">Samedi</span>
+                    </div>
+                    <div class="day">
+                        <span>09:00 - 14:00</span>
+                    </div>
+                </div>
+                <button class="copy-btn" data-link="Horaires:
+Lundi-Vendredi
+09:00 - 13:30
+15:00 - 19:30
+Samedi
+09:00 - 14:00">Copy Hours</button>
+            </div>
+
+            <!-- Google Maps Location -->
+            <div class="link-card">
+                <div class="link-header">
+                    <div class="link-icon location-icon">🚩</div>
+                    <h3 class="link-title">Google Maps</h3>
+                </div>
+                <p class="link-description">Our location on Google Maps</p>
+                <button class="copy-btn" data-link="https://maps.app.goo.gl/1tskB9vf1p4E3PCp7">Copy Location</button>
+            </div>
+
+            <!-- WhatsApp -->
+            <div class="link-card">
+                <div class="link-header">
+                    <div class="link-icon whatsapp-icon">💬</div>
+                    <h3 class="link-title">WhatsApp</h3>
+                </div>
+                <p class="link-description">Contact us directly on WhatsApp<br><strong>+212 660 443 367</strong></p>
+                <button class="copy-btn" data-link="https://wa.me/212660443367">Copy WhatsApp</button>
+            </div>
+
+            <!-- Fixed Phone -->
+            <div class="link-card">
+                <div class="link-header">
+                    <div class="link-icon phone-icon">📞</div>
+                    <h3 class="link-title">Téléphone Fixe</h3>
+                </div>
+                <p class="link-description">Our fixed phone number<br><strong>05 23 32 72 00</strong></p>
+                <button class="copy-btn" data-link="05 23 32 72 00">Copy Phone</button>
+            </div>
+
+            <!-- Gmail -->
+            <div class="link-card">
+                <div class="link-header">
+                    <div class="link-icon email-icon">📧</div>
+                    <h3 class="link-title">Gmail</h3>
+                </div>
+                <p class="link-description">Email contact<br><strong>benhamou.impression@gmail.com</strong></p>
+                <button class="copy-btn" data-link="benhamou.impression@gmail.com">Copy Gmail</button>
+            </div>
+
+            <!-- Website -->
+            <div class="link-card">
+                <div class="link-header">
+                    <div class="link-icon website-icon">🌐</div>
+                    <h3 class="link-title">Stickers Calcul</h3>
+                </div>
+                <p class="link-description">Visit our main website</p>
+                <button class="copy-btn visit-btn" data-link="https://0xbenham.github.io/ben/">Visit Website</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        Link copied to clipboard! ✅
+    </div>
+
+    <div class="developer-signature" id="developerSignature">
+        💻 Developed by FADY
+    </div>
+
+    <script>
+        // Copy to clipboard function
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                return true;
+            } catch (err) {
+                // Fallback method
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                return true;
+            }
+        }
+
+        // Show notification
+        function showNotification(message = "Copied to clipboard! ✅") {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Handle copy button clicks and visit button
+        document.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('visit-btn')) {
+                // Open link in new tab for visit buttons
+                const link = e.target.getAttribute('data-link');
+                window.open(link, '_blank');
+                
+                // Visual feedback
+                e.target.classList.add('copied');
+                const originalText = e.target.textContent;
+                e.target.textContent = 'Opening... 🚀';
+                
+                // Reset button after 1 second
+                setTimeout(() => {
+                    e.target.classList.remove('copied');
+                    e.target.textContent = originalText;
+                }, 1000);
+                
+            } else if (e.target.classList.contains('copy-btn')) {
+                // Copy to clipboard for copy buttons
+                const link = e.target.getAttribute('data-link');
+                const success = await copyToClipboard(link);
+                
+                if (success) {
+                    // Visual feedback
+                    e.target.classList.add('copied');
+                    const originalText = e.target.textContent;
+                    e.target.textContent = 'Copied! ✅';
+                    
+                    // Show notification
+                    showNotification();
+                    
+                    // Reset button after 2 seconds
+                    setTimeout(() => {
+                        e.target.classList.remove('copied');
+                        e.target.textContent = originalText;
+                    }, 2000);
+                }
+            }
+        });
+
+        // Developer signature click effect
+        document.getElementById('developerSignature').addEventListener('click', function() {
+            this.classList.remove('clicked');
+            void this.offsetWidth; // Trigger reflow
+            this.classList.add('clicked');
+            
+            // Remove class after animation
+            setTimeout(() => {
+                this.classList.remove('clicked');
+            }, 600);
+        });
+
+        // Add entrance animations
+        window.addEventListener('load', () => {
+            const cards = document.querySelectorAll('.link-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = 'all 0.6s ease';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 150);
+            });
+        });
+    </script>
+</body>
+</html>
